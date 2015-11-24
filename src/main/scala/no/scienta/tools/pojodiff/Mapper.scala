@@ -50,6 +50,6 @@ object Mapper {
     case (f, value) if isMapLike(value) => (RefKey(f, MapField), valueAsMap(value))
     case (f, value) if isSequenceLike(value) => (RefKey(f, ListField), valueAsList(value))
     case (f, value) if isLeaf(value) => (RefKey(f, LeafField), value)
-    case (f, value) => (RefKey(f, MapField), Mapper(value))
+    case (f, value) => (RefKey(f, NodeField), Mapper(value))
   }
 }
