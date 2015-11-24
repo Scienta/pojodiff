@@ -3,9 +3,14 @@ package no.scienta.tools
 import java.lang.reflect.Field
 import java.util
 
+import com.typesafe.scalalogging.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConversions._
 import scala.collection.SortedMap
 import scala.collection.immutable.TreeMap
+import scala.language.implicitConversions
+import scala.reflect._
 
 package object pojodiff {
 
@@ -51,4 +56,8 @@ package object pojodiff {
 
   private val wrapperTypes = List(
     classOf[Boolean], classOf[Integer], classOf[Long], classOf[Double], classOf[Float], classOf[Byte], classOf[Short])
+
+  def loggerFor[C: ClassTag]: Logger = loggerFor(classTag[C].runtimeClass.asInstanceOf[Class[C]])
+
+  def loggerFor(clazz: Class[_]): Logger = Logger(LoggerFactory getLogger clazz)
 }

@@ -10,15 +10,16 @@ case object LeafField extends FieldType {
 }
 
 case object MapField extends FieldType {
-  override def javaValue(v: AnyRef): java.util.Map[String, AnyRef] = v.asInstanceOf[SortedMap[String, Nested]] map {
-    case (key, nested) => (key, nested.toJava)
-  }
+  override def javaValue(v: AnyRef): java.util.Map[String, AnyRef] =
+    v.asInstanceOf[SortedMap[String, Nested]] mapValues (_.toJava)
 }
 
 case object ListField extends FieldType {
-  override def javaValue(v: AnyRef): java.util.List[AnyRef] = v.asInstanceOf[Iterable[Nested]].map(_.toJava).toList
+  override def javaValue(v: AnyRef): java.util.List[AnyRef] =
+    v.asInstanceOf[Iterable[Nested]].map(_.toJava).toList
 }
 
 case object NodeField extends FieldType {
-  override def javaValue(v: AnyRef): java.util.Map[String, AnyRef] = v.asInstanceOf[Mapper].toJava
+  override def javaValue(v: AnyRef): java.util.Map[String, AnyRef] =
+    v.asInstanceOf[Mapper].toJava
 }

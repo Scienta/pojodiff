@@ -8,7 +8,6 @@ object Differ {
     val mappers: List[Mapper] = objs.toList map Mapper.apply
     val values: List[List[RefValue]] = fieldTypes flatMap mapperValues(mappers)
     val differences: List[List[RefValue]] = differingValues(values)
-
     turn90(differences) map Mapper.apply
   }
 
@@ -24,13 +23,10 @@ object Differ {
     values filter (_.toSet.size > 1)
 
   private def turn90[V](lists: List[List[V]]): List[List[V]] = {
-    def reorgInternal(collectors: List[List[V]], originals: List[List[V]]): List[List[V]] = {
+    def turn(collectors: List[List[V]], originals: List[List[V]]): List[List[V]] =
       if (originals exists (_.isEmpty)) collectors
-      else reorgInternal(
-        (originals map (_.head)) :: collectors,
-        originals map (_.tail))
-    }
-    if (lists.isEmpty) Nil else reorgInternal(Nil, lists).reverse
+      else turn((originals map (_.head)) :: collectors, originals map (_.tail))
+    if (lists.isEmpty) Nil else turn(Nil, lists).reverse
   }
 
   private def keys(fieldType: FieldType, mappers: List[Mapper]): List[RefKey] =

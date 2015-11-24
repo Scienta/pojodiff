@@ -2,8 +2,6 @@ package no.scienta.tools.pojodiff
 
 import java.lang.reflect.Field
 
-import no.scienta.tools.pojodiff.utils.t2CascadingT
-
 import scala.collection.immutable.TreeMap
 
 case class Mapper(refMap: RefMap)  {
@@ -12,10 +10,9 @@ case class Mapper(refMap: RefMap)  {
 
   import scala.collection.JavaConversions._
 
-  def toJava: java.util.Map[String, AnyRef] =
-    Map[String, AnyRef](refMap.toList map {
-      case (RefKey(field, fieldType), value) => (field.getName, fieldType javaValue value)
-    }: _*)
+  def toJava: java.util.Map[String, AnyRef] = Map[String, AnyRef](refMap.toList map {
+    case (RefKey(field, fieldType), value) => (field.getName, fieldType javaValue value)
+  }: _*)
 }
 
 object Mapper {
@@ -25,12 +22,12 @@ object Mapper {
     }).toList: _*))
 
   def apply(ref: AnyRef): Mapper = {
-    val fields: List[(Field, AnyRef)] =
-      superclassPath(ref) flatMap fieldList map toAccessible map withValue(ref) filter hasValue
-    Mapper(TreeMap(fields map nestify(ref): _*))
+    val values: List[(RefKey, AnyRef)] =
+      superclassPath(ref) flatMap fieldList map toAccessible map withValue(ref) filter hasValue map nestify(ref)
+    Mapper(TreeMap(values: _*))
   }
 
-  private def hasValue(fieldValue: (Field, AnyRef)) = Option(fieldValue).map(_._2).isDefined
+  private def hasValue(fieldValue: (Field, AnyRef)) = Option(fieldValue._2).isDefined
 
   private def superclassPath(ref: AnyRef): List[Class[_]] = {
     def typeHierarchy(t: Class[_]): List[Class[_]] =
@@ -42,7 +39,10 @@ object Mapper {
 
   private def isInternal(field: Field) = field.getName contains "$"
 
-  private def toAccessible(field: Field): Field = field withSideEffect (_ setAccessible true)
+  private def toAccessible(field: Field): Field = {
+    field setAccessible true
+    field
+  }
 
   private def withValue(ref: AnyRef)(field: Field): (Field, AnyRef) = (field, field get ref)
 
